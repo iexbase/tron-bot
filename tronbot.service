@@ -1,0 +1,13 @@
+[Unit]
+Description=TronBot service
+After=multi-user.target
+
+[Service]
+Type=idle
+WorkingDirectory = /home/iexbase/ftp/files/tron_bot
+User=nginx
+Group=nginx
+ExecStart=/usr/bin/python3 tron_bot.py
+
+[Install]
+WantedBy=multi-user.target
