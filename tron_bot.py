@@ -313,7 +313,7 @@ def _tx_view(tx_id):
         text += '\n-----------------'
         text += '\n*Owner Address:* ' + str(data['ownerAddress'])
         text += '\n*Contract Address:* ' + str(data['toAddress'])
-        text += '\n*Value:* %s %s' % (tron.from_tron(data['contractData']['amount']), token)
+        text += '\n*Value:* %s %s' % (str("{:,}".format(data['contractData']['amount'])), token)
 
     return text
 
