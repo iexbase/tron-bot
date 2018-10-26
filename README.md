@@ -24,8 +24,6 @@ BOT_NAME = ""
 BOT_TOKEN = ""
 ```
 ### Run on local machine
-Run the bot in developer mode
-
 ```bash
 > python tron_bot.py
 ```
