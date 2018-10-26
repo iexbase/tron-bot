@@ -154,7 +154,8 @@ def start(bot, update):
 def help(bot, update):
     bot.send_message(chat_id=update.message.chat_id,
                      parse_mode=telegram.ParseMode.MARKDOWN,
-                     text=_manual())
+                     text=_manual(),
+                     reply_markup=reply_markup_p1)
 
 
 def _manual():
