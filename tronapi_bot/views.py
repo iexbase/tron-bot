@@ -65,3 +65,16 @@ STATS_VIEW = ("""
 *Current time:* {time}
 
 """)
+
+TX_VIEW = ("""
+*Hash:* {hash}
+*Status:* {status}
+*Block:* {block}
+*Time:* {time}
+
+
+*Owner Address:* {owner_address}
+*Contract Address:* {to_address}
+*Value:* {value} {token}
+
+""")

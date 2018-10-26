@@ -306,15 +306,14 @@ def _tx_view(tx_id):
         if data['confirmed']:
             status = "CONFIRMED"
 
-        text = '\n*Hash:* ' + str(data['hash'])
-        text += '\n*Status*: ' + status
-        text += '\n*Block:* ' + str(data['block'])
-        text += '\n*Time:* ' + datetime.fromtimestamp(data['timestamp'] / 1000).strftime('%d-%m-%Y, %H:%M')
-        text += '\n-----------------'
-        text += '\n*Owner Address:* ' + str(data['ownerAddress'])
-        text += '\n*Contract Address:* ' + str(data['toAddress'])
-        text += '\n*Value:* %s %s' % (str("{:,}".format(data['contractData']['amount'])), token)
-
+        text = views.TX_VIEW.format(hash=str(data['hash']),
+                                    status=status,
+                                    block=str(data['block']),
+                                    time=helpers.date_format(data['timestamp']),
+                                    owner_address=data['ownerAddress'],
+                                    to_address=data['toAddress'],
+                                    value=str("{:,}".format(data['contractData']['amount'])),
+                                    token=token)
     return text
 
 
