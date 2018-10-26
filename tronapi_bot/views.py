@@ -1,13 +1,13 @@
 
 BASE_START_TEXT = ("""
-Hello {user_name}!. Welcome to TRONBot
+Hello {user_name}!. Welcome to TronBot
 
 /help - Assistant to work with the bot
 """)
 
 
 HELP_VIEW = ("""
-@tronapi\_bot - telegram bot that helps you with send, find data in Blockchain TRON
+@iEXTronBot - telegram bot that helps you with send, find data in Blockchain TRON
 
 *Commands*:
 /start - Start Bot
