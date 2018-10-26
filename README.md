@@ -64,9 +64,10 @@ WantedBy=multi-user.target
 sudo systemctl start tronbot
 sudo systemctl enable tronbot
 ```
-
-## Licence
-MIT
+check run status
+```
+sudo systemctl status tronbot
+```
 
 ## Support and Donation
 * Star and/or fork this repository
