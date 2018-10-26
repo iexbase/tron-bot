@@ -36,13 +36,11 @@ Installing and running the bot on the server
 #### Step 1
 Upload all project files to server
 Example: /home/iexbase/tron_bot
-
 #### Step 2
 Create a Systemd file for TronBot:
 ```
 sudo nano /etc/systemd/system/tronbot.service
 ```
-
 #### Step 3
 ```
 [Unit]
