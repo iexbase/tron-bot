@@ -24,25 +24,24 @@ logger = logging.getLogger()
 
 
 def validate(bot, update, args):
-    """Проверяем адрес TRON"""
+    """Check TRON address"""
 
-    text_caps = ' '.join(args)
+    address = ' '.join(args)
     bot.send_message(chat_id=update.message.chat_id,
-                     text=tron.validate_address(text_caps))
+                     text=tron.validate_address(address))
 
 
 def tx(bot, update, args):
-    """Получение деталей транзакции"""
+    """Get transaction details"""
 
     txid = ''.join(args)
-
     bot.send_message(chat_id=update.message.chat_id,
                      parse_mode=telegram.ParseMode.MARKDOWN,
                      text=_tx_view(txid))
 
 
 def price(bot, update):
-    """ Получаем актуальный курс TRON из CoinmarketCap """
+    """Get the latest TRON course from CoinmarketCap"""
 
     bot.send_message(chat_id=update.message.chat_id,
                      parse_mode=telegram.ParseMode.MARKDOWN,
@@ -50,7 +49,7 @@ def price(bot, update):
 
 
 def accounts(bot, update):
-    """ТОП 10 Аккаунтов с самым большими TRX"""
+    """Top 10 Accounts with large balances"""
 
     bot.send_message(chat_id=update.message.chat_id,
                      parse_mode=telegram.ParseMode.MARKDOWN,
@@ -58,10 +57,9 @@ def accounts(bot, update):
 
 
 def block(bot, update, args):
-    """Получаем детали по блоку"""
+    """Get information on the block"""
 
     block_id = ' '.join(args)
-
     detail = _block_view(block_id)
 
     bot.send_message(chat_id=update.message.chat_id,
@@ -71,7 +69,7 @@ def block(bot, update, args):
 
 
 def send(bot, update, args):
-    """Отправляем средства клиенту"""
+    """Send transaction"""
 
     # f = FROM Address
     # t = To Address
@@ -96,7 +94,7 @@ def send(bot, update, args):
 
 
 def balance(bot, update, args):
-    """Получение баланса по адресу"""
+    """Get a balance at"""
 
     data = ' '.join(args).split(' ')
     from_tron = False
@@ -114,7 +112,7 @@ def balance(bot, update, args):
 
 
 def last_transactions(bot, update):
-    """Получение общего счетчика транзакций"""
+    """Get total transaction count"""
 
     bot.send_message(chat_id=update.message.chat_id,
                      parse_mode=telegram.ParseMode.MARKDOWN,
@@ -122,7 +120,7 @@ def last_transactions(bot, update):
 
 
 def generate_address(bot, update):
-    """Генерация нового адреса"""
+    """Generate new address"""
 
     bot.send_message(chat_id=update.message.chat_id,
                      parse_mode=telegram.ParseMode.MARKDOWN,
@@ -130,7 +128,7 @@ def generate_address(bot, update):
 
 
 def statistics(bot, update):
-    """Получение статистика TRON"""
+    """Get statistics Blockchain TRON"""
 
     bot.send_message(chat_id=update.message.chat_id,
                      parse_mode=telegram.ParseMode.MARKDOWN,
@@ -139,7 +137,7 @@ def statistics(bot, update):
 
 @run_async
 def start(bot, update):
-    """Первый запуск бота"""
+    """The first launch of the bot"""
 
     usr_name = update.message.from_user.first_name
     if update.message.from_user.last_name:
@@ -152,6 +150,7 @@ def start(bot, update):
 
 
 def help(bot, update):
+    """Assistant when working with the bot"""
     bot.send_message(chat_id=update.message.chat_id,
                      parse_mode=telegram.ParseMode.MARKDOWN,
                      text=_manual(),
@@ -159,11 +158,12 @@ def help(bot, update):
 
 
 def _manual():
+    """Instructions and commands"""
     return views.HELP_VIEW
 
 
 def _statistics_view():
-    """Шаблон получения подробной статистике TRON"""
+    """TRON detailed statistics template"""
 
     base = requests.get('https://wlcyapi.tronscan.org/api/stats/overview?limit=1').json()['data']
     nodes = requests.get('https://server.tron.network/api/v2/node/nodemap?total=1').json()
@@ -181,7 +181,7 @@ def _statistics_view():
 
 
 def _tx_last_transactions():
-    """Шаблон для получения общего счетчика транзакций"""
+    """Template for getting a total transaction count"""
 
     data = requests.get(
         'https://wlcyapi.tronscan.org/api/transaction?sort=-timestamp&count=true&limit=10&start=0').json()
@@ -200,7 +200,7 @@ def _tx_last_transactions():
         if 'amount' in tx['contractData']:
             amount = tx['contractData']['amount']
 
-        # Статус транзакции
+        # Transaction status
         status = "UNCONFIRMED"
         if tx['confirmed']:
             status = "CONFIRMED"
@@ -220,7 +220,7 @@ def _tx_last_transactions():
 
 
 def _generate_address_view():
-    """Шаблон создания нового адреса"""
+    """Template for creating a new address"""
 
     result = tron.generate_address()
 
@@ -228,10 +228,10 @@ def _generate_address_view():
 
 
 def _block_view(block_id):
-    """Шаблон для получения деталей блока
+    """Template for getting the details of the block
 
     Args:
-        block_id (str): ID Блока (example: latest, 123444, hash)
+        block_id (str): Block ID (example: latest, 123444, hash)
 
     """
     result = tron.get_block(block_id)
@@ -257,7 +257,7 @@ def _block_view(block_id):
 
 
 def _accounts_view():
-    """Шаблон для получения информации о ТОП 10 Крупных адресах"""
+    """Template for getting information about TOP 10 addresses with large balances"""
 
     data = requests.get('https://api.tronscan.org/api/account?sort=-balance&limit=10&start=0').json()['data']
     text = ""
@@ -273,7 +273,7 @@ def _accounts_view():
 
 
 def _price_view():
-    """ Шаблон для получаем акутального курса и объемов криптовалюты TRON """
+    """Template for get the current exchange rate and cryptocurrency volumes TRON"""
 
     data = requests.get(config.URL_COINMARKET_API_TRON).json()['data']
     data_usd = data['quotes']['USD']
@@ -285,10 +285,10 @@ def _price_view():
 
 
 def _tx_view(tx_id):
-    """Шаблон для получения деталей транзакции
+    """Template for obtaining transaction details
 
     Args:
-        tx_id (str): ID Транзакции
+        tx_id (str): Transaction ID
 
     """
 
@@ -334,7 +334,7 @@ def filter_text_input(bot, update):
 
     dict_to_request = text_simple(usr_msg_text)
 
-    # Получение информации о траназкции по ID
+    # Get transaction information by ID
     if dict_to_request == 'transaction':
         return bot.send_message(chat_id=usr_chat_id,
                                 parse_mode=telegram.ParseMode.MARKDOWN,
@@ -372,12 +372,12 @@ def error(bot, update, error):
 
 
 def main():
-    # Запускаем бот TRON
+    # Run the TRON bot
 
-    # Создаем EventHandler и передаем токен.
+    # We create EventHandler and we transfer a token.
     updater = Updater(config.BOT_TOKEN)
 
-    # Получаем диспетчера для регистрации обработчиков
+    # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
     # callback query
@@ -400,10 +400,10 @@ def main():
     dp.add_handler(CommandHandler("generateaddress", generate_address))
     dp.add_handler(CommandHandler("statistics", statistics))
 
-    # регистрировать все ошибки
+    # log all errors
     dp.add_error_handler(error)
 
-    # Запускаем бота
+    # Run the bot
     updater.start_polling()
 
     # Run the bot until the you presses Ctrl-C or the process receives SIGINT,
