@@ -55,7 +55,7 @@ ExecStart=/usr/bin/python3.6 tron_bot.py
 [Install]
 WantedBy=multi-user.target
 ```
-#### Step 3
+#### Step 4
 ```
 sudo systemctl start tronbot
 sudo systemctl enable tronbot
