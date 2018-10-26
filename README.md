@@ -44,7 +44,6 @@ sudo nano /etc/systemd/system/tronbot.service
 ```
 
 #### Step 3
-Service setting
 ```
 [Unit]
 Description=TronBot service
