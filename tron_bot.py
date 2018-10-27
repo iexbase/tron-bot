@@ -97,12 +97,8 @@ def balance(bot, update, args):
     """Get a balance at"""
 
     data = ' '.join(args).split(' ')
-    from_tron = False
-    if len(data) == 2:
-        from_tron = True
-
     try:
-        info = tron.get_balance(data[0], from_tron)
+        info = str("{:,}".format(tron.get_balance(data[0], True)))
     except Exception as e:
         info = str(e)
 
@@ -234,26 +230,32 @@ def _block_view(block_id):
         block_id (str): Block ID (example: latest, 123444, hash)
 
     """
-    result = tron.get_block(block_id)
-    header = result['block_header']['raw_data']
+    try:
+        result = tron.get_block(block_id)
 
-    text = views.BLOCK_VIEW.format(id=result['blockID'],
-                                   height=str(header['number']),
-                                   time=helpers.date_format(header['timestamp']),
-                                   count=str(len(result['transactions'])),
-                                   parent=header['parentHash'])
+        header = result['block_header']['raw_data']
+        text = views.BLOCK_VIEW.format(id=result['blockID'],
+                                       height=str(header['number']),
+                                       time=helpers.date_format(header['timestamp']),
+                                       count=str(len(result['transactions'])),
+                                       parent=header['parentHash'])
 
-    keyboard = []
-    index = 1
-    for tx in result['transactions']:
-        keyboard = keyboard + [[InlineKeyboardButton('Transaction #' + str(index), callback_data=tx['txID'])]]
-        index = index + 1
-    reply_markup = InlineKeyboardMarkup(keyboard)
+        keyboard = []
+        index = 1
+        for tx in result['transactions']:
+            keyboard = keyboard + [[InlineKeyboardButton('Transaction #' + str(index), callback_data=tx['txID'])]]
+            index = index + 1
+        reply_markup = InlineKeyboardMarkup(keyboard)
 
-    return {
-        'text': text,
-        'reply_markup': reply_markup
-    }
+        return {
+            'text': text,
+            'reply_markup': reply_markup
+        }
+    except Exception:
+        return {
+            'text': 'Sorry, block not found',
+            'reply_markup': None
+        }
 
 
 def _accounts_view():
