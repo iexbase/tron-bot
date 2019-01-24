@@ -17,7 +17,7 @@ from telegram.ext import (
     run_async,
     Filters
 )
-from tronapi import HttpProvider, Tron
+from tronapi import Tron
 
 from tronapi_bot import config, views, helpers
 from tronapi_bot.helpers import text_simple
