@@ -4,8 +4,12 @@ BOT_NAME = ""
 BOT_TOKEN = ""
 
 # To work with tronapi
-TRON_FULL_NODE = "https://trongrid.io"
-TRON_SOLIDITY_NODE = "https://trongrid.io"
+TRON_FULL_NODE = "https://api.trongrid.io"
+TRON_SOLIDITY_NODE = "https://api.trongrid.io"
+
+TRONSCAN_API = 'https://wlcyapi.tronscan.org/api'
+SERVER_TRON_API = 'https://server.tron.network/api/v2'
+API_TRONSCAN = 'https://apilist.tronscan.org/api'
 
 # For courses
 URL_COINMARKET_API_TRON = "https://api.coinmarketcap.com/v2/ticker/1958"

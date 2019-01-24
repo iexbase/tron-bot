@@ -45,10 +45,14 @@ ACCOUNTS_VIEW = ("""
 
 BLOCK_VIEW = ("""
 *Hash:* {id}
+-----------------------------
 *Height:* {height}
 *Time:* {time}
-*Transactions:* {count}
+*Transactions:* {count} txs
 *Parent Hash:* {parent}
+*Version*: {version}
+*Witness address*: {witness}
+
 
 """)
 
@@ -71,6 +75,7 @@ TX_VIEW = ("""
 *Status:* {status}
 *Block:* {block}
 *Time:* {time}
+*Contract Type*: {contract_type}
 
 
 *Owner Address:* {owner_address}
