@@ -78,3 +78,12 @@ TX_VIEW = ("""
 *Value:* {value} {token}
 
 """)
+
+CREATE_ACCOUNT = ("""
+
+*Address:* {address}
+--------------
+*Private key:* {privateKey}
+--------------
+*Public key:* {publicKey}
+""")

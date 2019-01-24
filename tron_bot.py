@@ -1,23 +1,33 @@
 import datetime
-import json
 import logging
 
 import requests
 import telegram
 from datetime import datetime
 
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import CommandHandler, Updater, MessageHandler, CallbackQueryHandler, run_async, \
+from telegram import (
+    InlineKeyboardButton,
+    InlineKeyboardMarkup
+)
+from telegram.ext import (
+    CommandHandler,
+    Updater,
+    MessageHandler,
+    CallbackQueryHandler,
+    run_async,
     Filters
-from tronapi.provider import HttpProvider
-from tronapi.tron import Tron
+)
+from tronapi import HttpProvider, Tron
+
 from tronapi_bot import config, views, helpers
 from tronapi_bot.helpers import text_simple
 from tronapi_bot.keyboards import reply_markup_p1
 
-full_node = HttpProvider(config.TRON_FULL_NODE)
-solidity_node = HttpProvider(config.TRON_SOLIDITY_NODE)
-tron = Tron(full_node, solidity_node)
+
+tron = Tron(
+    full_node=config.TRON_FULL_NODE,
+    solidity_node=config.TRON_SOLIDITY_NODE
+)
 
 logging.basicConfig(level=logging.DEBUG, format=config.LOG_FORMATTER)
 logger = logging.getLogger()
@@ -208,19 +218,23 @@ def _tx_last_transactions():
         text += '\n*Owner Address:* ' + str(tx['ownerAddress'])
         text += '\n*Contract Address:* ' + str(tx['toAddress'])
         if amount != 0:
-            text += '\n*Value:* %s %s' % (str(tron.from_tron(amount)), token)
+            text += '\n*Value:* %s %s' % (str(tron.fromSun(amount)), token)
         text += '\n-----------------'
 
-    text += '\n*Total:* ' + str(data['total'])
+    text += '\n*Total:* ' + str("{:,}".format(data['total']))
     return text
 
 
 def _generate_address_view():
     """Template for creating a new address"""
 
-    result = tron.generate_address()
+    result = tron.create_account
+    text = views.CREATE_ACCOUNT\
+        .format(address=result.address.base58,
+                privateKey=result.private_key,
+                publicKey=result.public_key)
 
-    return result
+    return text
 
 
 def _block_view(block_id):
@@ -231,7 +245,7 @@ def _block_view(block_id):
 
     """
     try:
-        result = tron.get_block(block_id)
+        result = tron.trx.get_block(block_id)
 
         header = result['block_header']['raw_data']
         text = views.BLOCK_VIEW.format(id=result['blockID'],
@@ -333,6 +347,9 @@ def callback_data(bot, update):
 def filter_text_input(bot, update):
     usr_msg_text = update.effective_message.text
     usr_chat_id = update.message.chat_id
+
+    print('----')
+    print(update)
 
     dict_to_request = text_simple(usr_msg_text)
 
