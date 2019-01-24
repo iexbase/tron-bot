@@ -1,7 +1,7 @@
 
 # To work with telegram bot
 BOT_NAME = ""
-BOT_TOKEN = "583116411:AAGMXhTq2_j8ehdJis65fZxVioOsLs1-vZc"
+BOT_TOKEN = ""
 
 # To work with tronapi
 TRON_FULL_NODE = "https://trongrid.io"
