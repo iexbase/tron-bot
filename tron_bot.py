@@ -1,9 +1,13 @@
-import datetime
+# --------------------------------------------------------------------
+# Copyright (c) iEXBase. All rights reserved.
+# Licensed under the MIT License.
+# See License.txt in the project root for license information.
+# --------------------------------------------------------------------
+
 import logging
 
 import requests
 import telegram
-from datetime import datetime
 
 from telegram import (
     InlineKeyboardButton,
@@ -21,9 +25,19 @@ from telegram.ext import (
 )
 from tronapi import Tron
 
-from tronapi_bot import config, views, helpers
-from tronapi_bot.helpers import text_simple, get_contract_type
-from tronapi_bot.keyboards import reply_markup_p1, reply_markup_send
+from tronapi_bot import (
+    config,
+    views,
+    helpers
+)
+from tronapi_bot.helpers import (
+    text_simple,
+    get_contract_type
+)
+from tronapi_bot.keyboards import (
+    reply_markup_p1,
+    reply_markup_send
+)
 
 # initial tron-api-python
 tron = Tron(
@@ -120,7 +134,7 @@ def last_transactions(bot, update):
     """Get last 10 transactions"""
 
     data = requests.get(
-        config.TRONSCAN_API + '/transaction?sort=-timestamp&count=true&limit=10&start=0'
+        config.API_TRONSCAN + '/transaction?sort=-timestamp&count=true&limit=10&start=0'
     ).json()
 
     keyboard = []
@@ -157,24 +171,24 @@ def statistics(bot, update):
 
 
 @run_async
-async def start(bot, update):
+def start(bot, update):
     """The first launch of the bot"""
 
     usr_name = update.message.from_user.first_name
     if update.message.from_user.last_name:
         usr_name += ' ' + update.message.from_user.last_name
-    usr_chat_id = update.message.chat_id
 
     text_response = views.BASE_START_TEXT.format(
         user_name=usr_name
     )
 
-    bot.send_message(
-        usr_chat_id,
+    update.message.reply_text(
         text_response,
         parse_mode="Markdown",
         reply_markup=reply_markup_p1
     )
+
+    return CHOOSING
 
 
 def help(bot, update):
@@ -196,7 +210,7 @@ def _manual():
 def _statistics_view():
     """TRON detailed statistics template"""
 
-    base = requests.get(config.TRONSCAN_API + '/stats/overview?limit=1').json()
+    base = requests.get(config.API_TRONSCAN + '/stats/overview?limit=1').json()
     nodes = requests.get(config.SERVER_TRON_API + '/node/nodemap?total=1').json()
     detail = base['data'][-1]
 
@@ -358,46 +372,54 @@ def callback_data(bot, update):
 
 @run_async
 def filter_text_input(bot, update):
-    usr_msg_text = update.effective_message.text
-    usr_chat_id = update.message.chat_id
 
+    usr_msg_text = update.message.text
     dict_to_request = text_simple(usr_msg_text)
 
     # Get transaction information by ID
     if dict_to_request == 'transaction':
-        return bot.send_message(
-            chat_id=usr_chat_id,
+        update.message.reply_text(
             parse_mode=telegram.ParseMode.MARKDOWN,
             text=_tx_view(usr_msg_text)
         )
-
-    if dict_to_request == 'topaccounts':
-        return bot.send_message(
-            chat_id=usr_chat_id,
+    elif dict_to_request == 'lasttransactions':
+        update.message.reply_text(
+            parse_mode=telegram.ParseMode.MARKDOWN,
+            text=_generate_address_view()
+        )
+    elif dict_to_request == 'topaccounts':
+        update.message.reply_text(
             parse_mode=telegram.ParseMode.MARKDOWN,
             text=_accounts_view()
         )
-
-    if dict_to_request == 'price':
-        bot.send_message(
-            chat_id=usr_chat_id,
+    elif dict_to_request == 'price':
+        update.message.reply_text(
             parse_mode=telegram.ParseMode.MARKDOWN,
             text=_price_view()
         )
-
-    if dict_to_request == 'generateaddress':
-        bot.send_message(
-            chat_id=usr_chat_id,
+    elif dict_to_request == 'generateaddress':
+        update.message.reply_text(
             parse_mode=telegram.ParseMode.MARKDOWN,
             text=_generate_address_view()
         )
 
-    if dict_to_request == 'stats':
-        bot.send_message(
-            chat_id=usr_chat_id,
+    elif dict_to_request == 'createtransaction':
+        update.message.reply_text(
+            "To send a transaction, call the command /send",
+            parse_mode=telegram.ParseMode.MARKDOWN,
+        )
+    elif dict_to_request == 'stats':
+        update.message.reply_text(
             parse_mode=telegram.ParseMode.MARKDOWN,
             text=_statistics_view()
         )
+    else:
+        update.message.reply_text(
+            text='You did not fill out all the fields, try again. /help',
+            reply_markup=None
+        )
+
+    return CHOOSING
 
 
 def error(bot, update, error):
@@ -435,13 +457,17 @@ def received_information(bot, update, user_data):
 
     # In case the recipient’s address is entered incorrectly displays an error
     if 'To' in user_data and not tron.isAddress(user_data['To']):
-        update.message.reply_text("Invalid To Address {}"
-                                  .format(user_data['To']), reply_markup=reply_markup_send)
+        update.message.reply_text(
+            "Invalid To Address {}".format(user_data['To']),
+            reply_markup=reply_markup_send
+        )
         return CHOOSING
 
     del user_data['choice']
-    update.message.reply_text("Transaction Details {}"
-                              .format(facts_to_str(user_data)), reply_markup=reply_markup_send)
+    update.message.reply_text(
+        "Transaction Details {}".format(facts_to_str(user_data)),
+        reply_markup=reply_markup_send
+    )
 
     return CHOOSING
 
@@ -495,8 +521,31 @@ def main():
     # callback query
     updater.dispatcher.add_handler(CallbackQueryHandler(callback_data))
 
+    start_handler = ConversationHandler(
+        entry_points=[CommandHandler('start', start)],
+
+        states={
+            CHOOSING: [
+                RegexHandler(
+                    '^(Generate Address|Last Transactions|Price|Stats|Top Accounts|Create transaction)$',
+                    filter_text_input
+                ),
+
+                RegexHandler(
+                    '^[0-9a-zA-Z]{64}$',
+                    filter_text_input
+                ),
+            ]
+        },
+
+        fallbacks=[
+            RegexHandler('^Help',
+                         help)
+        ]
+    )
+
     # commands
-    dp.add_handler(CommandHandler('start', start))
+    dp.add_handler(start_handler)
     dp.add_handler(CommandHandler('help', help))
     dp.add_handler(CommandHandler('tx', tx, pass_args=True))
     dp.add_handler(CommandHandler("validate", validate, pass_args=True))
@@ -540,6 +589,9 @@ def main():
     )
 
     dp.add_handler(transfer_handler)
+
+    # messages
+    # dp.add_handler(MessageHandler(Filters.text, filter_text_input))
 
     # log all errors
     dp.add_error_handler(error)

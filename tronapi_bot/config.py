@@ -7,7 +7,6 @@ BOT_TOKEN = ""
 TRON_FULL_NODE = "https://api.trongrid.io"
 TRON_SOLIDITY_NODE = "https://api.trongrid.io"
 
-TRONSCAN_API = 'https://wlcyapi.tronscan.org/api'
 SERVER_TRON_API = 'https://server.tron.network/api/v2'
 API_TRONSCAN = 'https://apilist.tronscan.org/api'
 
