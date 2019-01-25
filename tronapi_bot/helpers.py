@@ -1,4 +1,17 @@
+# --------------------------------------------------------------------
+# Copyright (c) iEXBase. All rights reserved.
+# Licensed under the MIT License.
+# See License.txt in the project root for license information.
+# --------------------------------------------------------------------
+
+import locale
 from datetime import datetime
+
+locale.setlocale(locale.LC_ALL, '')
+
+
+def currency(amount):
+    return str(locale.currency(amount, grouping=True))
 
 
 def date_format(timestamp):
@@ -13,7 +26,6 @@ def text_simple(usr_msg_text):
 
 
 def get_contract_type(t: int):
-
     if t == 1:
         return 'Transfer'
     elif t == 2:

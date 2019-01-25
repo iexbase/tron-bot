@@ -1,3 +1,8 @@
+# --------------------------------------------------------------------
+# Copyright (c) iEXBase. All rights reserved.
+# Licensed under the MIT License.
+# See License.txt in the project root for license information.
+# --------------------------------------------------------------------
 
 BASE_START_TEXT = ("""
 Hello {user_name}!. Welcome to TronBot
@@ -7,7 +12,7 @@ Hello {user_name}!. Welcome to TronBot
 
 
 HELP_VIEW = ("""
-@iEXTronBot - telegram bot that helps you with send, find data in Blockchain TRON
+@iEXTronBot - Telegram bot that helps you with send, find data in Blockchain TRON
 
 *Commands*:
 /start - Start Bot
@@ -20,7 +25,7 @@ HELP_VIEW = ("""
 /block {id|hash} - Get information about the block
 /tx {hash} - Get information about the transaction
 /balance {address} - Getting balance at
-/send {from} {to} {amount} {private} - Send Transaction
+/send - Send Transaction
 
 *Supports*
 - TRX: TRWBqiqoFZysoAeyR1J35ibuyc8EvhUAoY'
@@ -36,9 +41,8 @@ PRICE_VIEW = ("""
 
 
 ACCOUNTS_VIEW = ("""
-*Name:* {name}
 *Address* {address}
-*Balance TRX* {balance}
+*Balance TRX* {balance} 
 ---------------------
 """)
 

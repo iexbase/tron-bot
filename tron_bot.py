@@ -3,7 +3,7 @@
 # Licensed under the MIT License.
 # See License.txt in the project root for license information.
 # --------------------------------------------------------------------
-
+import locale
 import logging
 
 import requests
@@ -26,14 +26,14 @@ from telegram.ext import (
 from tronapi import Tron
 
 from tronapi_bot import (
-    config,
+    constants,
     views,
     helpers
 )
 from tronapi_bot.helpers import (
     text_simple,
-    get_contract_type
-)
+    get_contract_type,
+    currency)
 from tronapi_bot.keyboards import (
     reply_markup_p1,
     reply_markup_send
@@ -41,14 +41,14 @@ from tronapi_bot.keyboards import (
 
 # initial tron-api-python
 tron = Tron(
-    full_node=config.TRON_FULL_NODE,
-    solidity_node=config.TRON_SOLIDITY_NODE
+    full_node=constants.TRON_FULL_NODE,
+    solidity_node=constants.TRON_SOLIDITY_NODE
 )
 
 # Enabled logging
 logging.basicConfig(
     level=logging.DEBUG,
-    format=config.LOG_FORMATTER
+    format=constants.LOG_FORMATTER
 )
 logger = logging.getLogger()
 
@@ -134,7 +134,7 @@ def last_transactions(bot, update):
     """Get last 10 transactions"""
 
     data = requests.get(
-        config.API_TRONSCAN + '/transaction?sort=-timestamp&count=true&limit=10&start=0'
+        constants.API_TRONSCAN + '/transaction?sort=-timestamp&count=true&limit=10&start=0'
     ).json()
 
     keyboard = []
@@ -210,8 +210,8 @@ def _manual():
 def _statistics_view():
     """TRON detailed statistics template"""
 
-    base = requests.get(config.API_TRONSCAN + '/stats/overview?limit=1').json()
-    nodes = requests.get(config.SERVER_TRON_API + '/node/nodemap?total=1').json()
+    base = requests.get(constants.API_TRONSCAN + '/stats/overview?limit=1').json()
+    nodes = requests.get(constants.SERVER_TRON_API + '/node/nodemap?total=1').json()
     detail = base['data'][-1]
 
     text = views.STATS_VIEW.format(
@@ -276,18 +276,14 @@ def _accounts_view():
     """Template for getting information about TOP 10 addresses with large balances"""
 
     data = requests.get(
-        config.API_TRONSCAN + '/account?sort=-balance&limit=10&start=0'
+        constants.API_TRONSCAN + '/account/list?sort=-balance&limit=10&start=0'
     ).json()['data']
 
-    text = ""
+    text = ''
     for account in data:
-        if len(account['name']) == 0:
-            account['name'] = 'NoName'
-
         text += views.ACCOUNTS_VIEW.format(
-            name=account['name'],
             address=account['address'],
-            balance=str("{:,}".format(account['balance']))
+            balance=currency(account['balance'])
         )
     return text
 
@@ -295,7 +291,7 @@ def _accounts_view():
 def _price_view():
     """Template for get the current exchange rate and cryptocurrency volumes TRON"""
 
-    data = requests.get(config.URL_COINMARKET_API_TRON).json()['data']
+    data = requests.get(constants.URL_COINMARKET_API_TRON).json()['data']
     data_usd = data['quotes']['USD']
 
     return views.PRICE_VIEW.format(
@@ -314,7 +310,7 @@ def _tx_view(tx_id):
 
     """
 
-    data = requests.get(config.API_TRONSCAN + "/transaction-info?hash=" + tx_id).json()
+    data = requests.get(constants.API_TRONSCAN + "/transaction-info?hash=" + tx_id).json()
     text = "Sorry, the transaction could not be found."
 
     token = 'TRX'
@@ -372,7 +368,6 @@ def callback_data(bot, update):
 
 @run_async
 def filter_text_input(bot, update):
-
     usr_msg_text = update.message.text
     dict_to_request = text_simple(usr_msg_text)
 
@@ -513,7 +508,7 @@ def main():
     # Run the TRON bot
 
     # We create EventHandler and we transfer a token.
-    updater = Updater(config.BOT_TOKEN)
+    updater = Updater(constants.BOT_TOKEN)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
