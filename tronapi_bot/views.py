@@ -109,13 +109,16 @@ DAPP_PREVIEW = ("""
 
 
 DAPP_STAT = ("""
+*Dapp statistics*
+Stats are updated daily. Check back often to see the progress and development of the DApp ecosystem.
+
 *Total DApps:* {total}
 *Daily active users:*: {dau}
 *24 hr transactions:* {transactions}
 *24 hr volume (TRX):* {volume}
 *Smart contracts:* {smart_contract}
 
-*Categories:*
+*Statistics by category:*
 """)
 
 
