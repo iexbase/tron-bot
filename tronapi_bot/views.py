@@ -16,9 +16,10 @@ HELP_VIEW = ("""
 
 *Commands*:
 /start - Start Bot
-/generateaddress - Generate new TRON address
-/statistics - Substrate statistics
-/lasttransactions - Last Transactions
+/createaccount - Generate new TRON address
+/stats - Substrate statistics
+/dapps - Dapps projects
+/lasttransactions - Last 10 transactions
 /price - Actual course
 /accounts - TOP 10 Accounts
 /validate {address} - Validate address
