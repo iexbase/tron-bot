@@ -36,8 +36,7 @@ from tronapi_bot.helpers import (
     currency
 )
 from tronapi_bot.keyboards import (
-    reply_markup_p1,
-    reply_markup_send
+    reply_markup_p1
 )
 
 # initial tron-api-python
@@ -430,88 +429,6 @@ def error(bot, update, error):
     logger.warning('Update "%s" caused error "%s"', update, error)
 
 
-def regular_choice(bot, update, user_data):
-    text = update.message.text
-    user_data['choice'] = text
-
-    if text == 'To':
-        update.message.reply_text('Specify the recipient\'s address in the format: ')
-    elif text == 'Private key':
-        update.message.reply_text('Enter private key: (A private key is required to sign a transaction.)')
-    elif text == 'Amount':
-        update.message.reply_text('Enter the transfer amount: ')
-
-    return TYPING_REPLY
-
-
-def facts_to_str(user_data):
-    facts = list()
-
-    for key, value in user_data.items():
-        facts.append('{} - {}'.format(key, value))
-
-    return "\n".join(facts).join(['\n', '\n'])
-
-
-def received_information(bot, update, user_data):
-    text = update.message.text
-    category = user_data['choice']
-    user_data[category] = text
-
-    # In case the recipient’s address is entered incorrectly displays an error
-    if 'To' in user_data and not tron.isAddress(user_data['To']):
-        update.message.reply_text(
-            "Invalid To Address {}".format(user_data['To']),
-            reply_markup=reply_markup_send
-        )
-        return CHOOSING
-
-    del user_data['choice']
-    update.message.reply_text(
-        "Transaction Details {}".format(facts_to_str(user_data)),
-        reply_markup=reply_markup_send
-    )
-
-    return CHOOSING
-
-
-def submit_transaction(bot, update, user_data):
-    if 'choice' in user_data:
-        del user_data['choice']
-
-    if 'Amount' not in user_data or 'Private key' not in user_data or 'To':
-        update.message.reply_text(
-            text='You did not fill out all the fields, try again. /send',
-            reply_markup=None
-        )
-        return CHOOSING
-
-    try:
-        from_ = tron.address.from_private_key(user_data['Private key']).base58
-
-        tron.private_key = user_data['Private key']
-        tron.default_address = from_
-        result = tron.trx.send(user_data['To'], float(user_data['Amount']))
-        keyboard = [
-            [InlineKeyboardButton("Transaction Detail", callback_data=result['transaction']['txID'])]
-        ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        update.message.reply_text(
-            text='Successful Transaction',
-            reply_markup=reply_markup
-        )
-
-        user_data.clear()
-        return ConversationHandler.END
-
-    except Exception as e:
-        bot.send_message(
-            chat_id=update.message.chat_id,
-            parse_mode=telegram.ParseMode.MARKDOWN,
-            text=e
-        )
-
-
 def main():
     # Run the TRON bot
 
@@ -530,7 +447,7 @@ def main():
         states={
             CHOOSING: [
                 RegexHandler(
-                    '^(Generate Address|Last Transactions|Price|Stats|Top Accounts|Create transaction)$',
+                    '^(Generate Address|Last Transactions|Price|Stats|Top Accounts)$',
                     filter_text_input
                 ),
 
@@ -546,40 +463,8 @@ def main():
         ]
     )
 
-    # Send Transaction
-    transfer_handler = ConversationHandler(
-        entry_points=[CommandHandler('send', send)],
-
-        states={
-            CHOOSING: [
-                RegexHandler('^(To|Amount|Private key)$',
-                             regular_choice,
-                             pass_user_data=True),
-            ],
-
-            TYPING_CHOICE: [
-                MessageHandler(Filters.text,
-                               regular_choice,
-                               pass_user_data=True),
-            ],
-
-            TYPING_REPLY: [
-                MessageHandler(Filters.text,
-                               received_information,
-                               pass_user_data=True),
-            ],
-        },
-
-        fallbacks=[
-            RegexHandler('^Submit transaction$',
-                         submit_transaction,
-                         pass_user_data=True)
-        ]
-    )
-
     # commands
     dp.add_handler(start_handler)
-    dp.add_handler(transfer_handler)
     dp.add_handler(CommandHandler('help', help))
     dp.add_handler(CommandHandler('tx', tx, pass_args=True))
     dp.add_handler(CommandHandler("validate", validate, pass_args=True))
@@ -590,6 +475,9 @@ def main():
     dp.add_handler(CommandHandler("lasttransactions", last_transactions))
     dp.add_handler(CommandHandler("generateaddress", generate_address))
     dp.add_handler(CommandHandler("statistics", statistics))
+
+    # messages
+    # dp.add_handler(MessageHandler(Filters.text, filter_text_input))
 
     # log all errors
     dp.add_error_handler(error)

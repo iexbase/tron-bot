@@ -25,7 +25,6 @@ HELP_VIEW = ("""
 /block {id|hash} - Get information about the block
 /tx {hash} - Get information about the transaction
 /balance {address} - Getting balance at
-/send - Send Transaction
 
 *Supports*
 - TRX: TRWBqiqoFZysoAeyR1J35ibuyc8EvhUAoY'
