@@ -26,7 +26,7 @@ def format_price(num):
 
 
 def currency(amount):
-    return str(locale.currency(amount, grouping=True))
+    return str(locale.currency(amount, grouping=True)).replace('$', '').replace('?', '')
 
 
 def format_html(text):
