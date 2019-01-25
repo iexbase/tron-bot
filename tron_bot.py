@@ -300,19 +300,12 @@ def _accounts_view():
     return text
 
 
-def truncate(n, decimals=0):
-    multiplier = 10 ** decimals
-    return int(n * multiplier) / multiplier
-
-
 def _price_view():
     """Template for get the current exchange rate and cryptocurrency volumes TRON"""
 
     data = requests.get(constants.URL_COINMARKET_API_TRON).json()['data']
     data_usd = data['quotes']['USD']
     data_btc = data['quotes']['BTC']
-
-    print(data)
 
     return views.PRICE_VIEW.format(
         price='{:.3f}'.format(data_usd['price']),
