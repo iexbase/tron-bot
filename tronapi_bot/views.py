@@ -33,6 +33,7 @@ HELP_VIEW = ("""
 
 PRICE_VIEW = ("""
 *Price:* {price}
+*Price BTC: * {price_btc}
 *Global Rank:* {rank} 
 *Market Cap:* {market_cap}
 *24h Volume:* {volume_24h}
@@ -94,4 +95,14 @@ CREATE_ACCOUNT = ("""
 *Private key:* {privateKey}
 --------------
 *Public key:* {publicKey}
+""")
+
+
+DAPP_PREVIEW = ("""
+*Name:* {name}
+*Tagline:* {tagline}
+*Version:* {version}
+*Developer:* {developer}
+*Total transaction* {total}
+-------------------------
 """)

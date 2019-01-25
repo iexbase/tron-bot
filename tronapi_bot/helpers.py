@@ -5,13 +5,40 @@
 # --------------------------------------------------------------------
 
 import locale
+import lxml.html
+import lxml.html.clean
 from datetime import datetime
+
+from tronapi_bot.constants import DAPPS_API
 
 locale.setlocale(locale.LC_ALL, '')
 
 
 def currency(amount):
     return str(locale.currency(amount, grouping=True))
+
+
+def format_html(text):
+    result = lxml.html.fromstring(text)
+    cleaner = lxml.html.clean.Cleaner(style=True)
+    result = cleaner.clean_html(result)
+
+    return result.text_content()
+
+
+def dapps_category(categoty: str):
+    if categoty == 'dapps_0':
+        return DAPPS_API + '/list/bonus?category=-1&start=0&limit=10'
+    elif categoty == 'dapps_games':
+        return DAPPS_API + '/list?category=1&start=0&limit=10'
+    elif categoty == 'dapps_exchangers':
+        return DAPPS_API + '/list?category=2&start=0&limit=10'
+    elif categoty == 'dapps_gambling':
+        return DAPPS_API + '/list?category=5&start=0&limit=10'
+    elif categoty == 'dapps_collectibles':
+        return DAPPS_API + '/list?category=3&start=0&limit=10'
+    elif categoty == 'dapps_other':
+        return DAPPS_API + '/list?category=0&start=0&limit=10'
 
 
 def date_format(timestamp):

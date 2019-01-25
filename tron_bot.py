@@ -5,6 +5,7 @@
 # --------------------------------------------------------------------
 
 import logging
+from decimal import Decimal
 
 import requests
 import telegram
@@ -162,6 +163,24 @@ def statistics(bot, update):
     )
 
 
+def dapps(bot, update):
+    keyboard = [
+        [InlineKeyboardButton("TRONAccelerator Winners", callback_data='dapps_0')],
+        [InlineKeyboardButton("Games", callback_data='dapps_games')],
+        [InlineKeyboardButton("Exchangers", callback_data='dapps_exchangers')],
+        [InlineKeyboardButton("Gambling", callback_data='dapps_gambling')],
+        [InlineKeyboardButton("Collectibles", callback_data='dapps_collectibles')],
+        [InlineKeyboardButton("Other", callback_data='dapps_other')]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    update.message.reply_text(
+        parse_mode=telegram.ParseMode.MARKDOWN,
+        text='Select a category',
+        reply_markup=reply_markup
+    )
+
+
 @run_async
 def start(bot, update):
     """The first launch of the bot"""
@@ -276,9 +295,14 @@ def _accounts_view():
     for account in data:
         text += views.ACCOUNTS_VIEW.format(
             address=account['address'],
-            balance=currency(account['balance'])
+            balance=currency(tron.fromSun(account['balance']))
         )
     return text
+
+
+def truncate(n, decimals=0):
+    multiplier = 10 ** decimals
+    return int(n * multiplier) / multiplier
 
 
 def _price_view():
@@ -286,9 +310,13 @@ def _price_view():
 
     data = requests.get(constants.URL_COINMARKET_API_TRON).json()['data']
     data_usd = data['quotes']['USD']
+    data_btc = data['quotes']['BTC']
+
+    print(data)
 
     return views.PRICE_VIEW.format(
-        price=round(data_usd['price'], 3),
+        price='{:.3f}'.format(data_usd['price']),
+        price_btc='{:.8f}'.format(data_btc['price']),
         rank=data['rank'],
         market_cap=currency(data_usd["market_cap"]),
         volume_24h=currency(data_usd["volume_24h"])
@@ -349,6 +377,26 @@ def _tx_view(tx_id):
 
 def callback_data(bot, update):
     query = update.callback_query
+
+    if query.data in constants.DAPPS_CAT:
+        result = requests.get(helpers.dapps_category(query.data)).json()
+
+        text = ''
+        for item in result['data']['data']:
+
+            text += views.DAPP_PREVIEW.format(
+                name=helpers.format_html(item['name']),
+                tagline=helpers.format_html(item['tagline']),
+                version=str(item['ver']),
+                developer=helpers.format_html(item['developer']),
+                total=str(item['totalTransaction'])
+            )
+
+        bot.send_message(
+            text=text,
+            chat_id=query.message.chat_id,
+            parse_mode=telegram.ParseMode.MARKDOWN
+        )
 
     if len(query.data) == 64:
         bot.edit_message_text(
@@ -471,6 +519,7 @@ def main():
     dp.add_handler(CommandHandler("lasttransactions", last_transactions))
     dp.add_handler(CommandHandler("generateaddress", generate_address))
     dp.add_handler(CommandHandler("statistics", statistics))
+    dp.add_handler(CommandHandler('dapps', dapps))
 
     # messages
     # dp.add_handler(MessageHandler(Filters.text, filter_text_input))
