@@ -3,7 +3,7 @@
 # Licensed under the MIT License.
 # See License.txt in the project root for license information.
 # --------------------------------------------------------------------
-import locale
+
 import logging
 
 import requests
@@ -33,7 +33,8 @@ from tronapi_bot import (
 from tronapi_bot.helpers import (
     text_simple,
     get_contract_type,
-    currency)
+    currency
+)
 from tronapi_bot.keyboards import (
     reply_markup_p1,
     reply_markup_send
@@ -89,19 +90,20 @@ def price(bot, update):
 def accounts(bot, update):
     """Top 10 Accounts with large balances"""
 
-    bot.send_message(chat_id=update.message.chat_id,
-                     parse_mode=telegram.ParseMode.MARKDOWN,
-                     text=_accounts_view())
+    bot.send_message(
+        chat_id=update.message.chat_id,
+        parse_mode=telegram.ParseMode.MARKDOWN,
+        text=_accounts_view()
+    )
 
 
 def block(bot, update, args):
     """Get information on the block"""
 
-    text = _block_view(' '.join(args))
     bot.send_message(
         chat_id=update.message.chat_id,
         parse_mode=telegram.ParseMode.MARKDOWN,
-        text=text
+        text=_block_view(' '.join(args))
     )
 
 
@@ -248,6 +250,7 @@ def _block_view(block_id):
 
     """
 
+    # If no block number is specified
     if not block_id:
         block_id = 'latest'
 
@@ -265,7 +268,7 @@ def _block_view(block_id):
             witness=tron.address.from_hex(header['witness_address']).decode("utf-8")
         )
         return text
-    except Exception as e:
+    except Exception:
         return {
             'text': 'Sorry, block not found',
             'reply_markup': None
@@ -377,32 +380,37 @@ def filter_text_input(bot, update):
             parse_mode=telegram.ParseMode.MARKDOWN,
             text=_tx_view(usr_msg_text)
         )
+    # Get last transactions
     elif dict_to_request == 'lasttransactions':
         update.message.reply_text(
             parse_mode=telegram.ParseMode.MARKDOWN,
             text=_generate_address_view()
         )
+    # Get top 10 accounts
     elif dict_to_request == 'topaccounts':
         update.message.reply_text(
             parse_mode=telegram.ParseMode.MARKDOWN,
             text=_accounts_view()
         )
+    # Get lasted TRON course
     elif dict_to_request == 'price':
         update.message.reply_text(
             parse_mode=telegram.ParseMode.MARKDOWN,
             text=_price_view()
         )
+    # Create new account
     elif dict_to_request == 'generateaddress':
         update.message.reply_text(
             parse_mode=telegram.ParseMode.MARKDOWN,
             text=_generate_address_view()
         )
-
+    # Create transaction
     elif dict_to_request == 'createtransaction':
         update.message.reply_text(
             "To send a transaction, call the command /send",
             parse_mode=telegram.ParseMode.MARKDOWN,
         )
+    # Get stats
     elif dict_to_request == 'stats':
         update.message.reply_text(
             parse_mode=telegram.ParseMode.MARKDOWN,
@@ -534,23 +542,9 @@ def main():
         },
 
         fallbacks=[
-            RegexHandler('^Help',
-                         help)
+            RegexHandler('^Help', help)
         ]
     )
-
-    # commands
-    dp.add_handler(start_handler)
-    dp.add_handler(CommandHandler('help', help))
-    dp.add_handler(CommandHandler('tx', tx, pass_args=True))
-    dp.add_handler(CommandHandler("validate", validate, pass_args=True))
-    dp.add_handler(CommandHandler("price", price))
-    dp.add_handler(CommandHandler("block", block, pass_args=True))
-    dp.add_handler(CommandHandler("balance", balance, pass_args=True))
-    dp.add_handler(CommandHandler("accounts", accounts))
-    dp.add_handler(CommandHandler("lasttransactions", last_transactions))
-    dp.add_handler(CommandHandler("generateaddress", generate_address))
-    dp.add_handler(CommandHandler("statistics", statistics))
 
     # Send Transaction
     transfer_handler = ConversationHandler(
@@ -583,10 +577,19 @@ def main():
         ]
     )
 
+    # commands
+    dp.add_handler(start_handler)
     dp.add_handler(transfer_handler)
-
-    # messages
-    # dp.add_handler(MessageHandler(Filters.text, filter_text_input))
+    dp.add_handler(CommandHandler('help', help))
+    dp.add_handler(CommandHandler('tx', tx, pass_args=True))
+    dp.add_handler(CommandHandler("validate", validate, pass_args=True))
+    dp.add_handler(CommandHandler("price", price))
+    dp.add_handler(CommandHandler("block", block, pass_args=True))
+    dp.add_handler(CommandHandler("balance", balance, pass_args=True))
+    dp.add_handler(CommandHandler("accounts", accounts))
+    dp.add_handler(CommandHandler("lasttransactions", last_transactions))
+    dp.add_handler(CommandHandler("generateaddress", generate_address))
+    dp.add_handler(CommandHandler("statistics", statistics))
 
     # log all errors
     dp.add_error_handler(error)
