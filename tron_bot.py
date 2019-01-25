@@ -119,7 +119,7 @@ def balance(bot, update, args):
 
     data = ' '.join(args).split(' ')
     try:
-        info = str("{:,}".format(tron.trx.get_balance(data[0], True)))
+        info = currency(tron.trx.get_balance(data[0], True))
     except Exception as e:
         info = str(e)
 
@@ -297,8 +297,8 @@ def _price_view():
     return views.PRICE_VIEW.format(
         price=round(data_usd['price'], 3),
         rank=data['rank'],
-        market_cap=str("{:,}".format(data_usd["market_cap"])),
-        volume_24h=str("{:,}".format(data_usd["volume_24h"]))
+        market_cap=currency(data_usd["market_cap"]),
+        volume_24h=currency(data_usd["volume_24h"])
     )
 
 
@@ -346,7 +346,7 @@ def _tx_view(tx_id):
         time=helpers.date_format(data['timestamp']),
         owner_address=data['ownerAddress'],
         to_address=data['toAddress'],
-        value=str("{:,}".format(amount)),
+        value=currency(amount),
         contract_type=contract_type,
         token=token
     )
