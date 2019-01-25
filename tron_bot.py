@@ -106,15 +106,6 @@ def block(bot, update, args):
     )
 
 
-def send(bot, update):
-    update.message.reply_text(
-        "Before sending a transaction, fill in all the necessary items",
-        reply_markup=reply_markup_send
-    )
-
-    return CHOOSING
-
-
 def balance(bot, update, args):
     """Get a balance at"""
 
@@ -447,8 +438,13 @@ def main():
         states={
             CHOOSING: [
                 RegexHandler(
-                    '^(Generate Address|Last Transactions|Price|Stats|Top Accounts)$',
+                    '^(Generate Address|Price|Stats|Top Accounts)$',
                     filter_text_input
+                ),
+
+                RegexHandler(
+                    '^(Last Transactions)$',
+                    last_transactions
                 ),
 
                 RegexHandler(
