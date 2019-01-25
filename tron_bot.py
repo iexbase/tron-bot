@@ -143,17 +143,17 @@ def last_transactions(bot, update):
     )
 
 
-def generate_address(bot, update):
+def createaccount(bot, update):
     """Generate new address"""
 
     bot.send_message(
         chat_id=update.message.chat_id,
         parse_mode=telegram.ParseMode.MARKDOWN,
-        text=_generate_address_view()
+        text=_create_account_view()
     )
 
 
-def statistics(bot, update):
+def stats(bot, update):
     """Get statistics Blockchain TRON"""
 
     bot.send_message(
@@ -170,7 +170,8 @@ def dapps(bot, update):
         [InlineKeyboardButton("Exchangers", callback_data='dapps_exchangers')],
         [InlineKeyboardButton("Gambling", callback_data='dapps_gambling')],
         [InlineKeyboardButton("Collectibles", callback_data='dapps_collectibles')],
-        [InlineKeyboardButton("Other", callback_data='dapps_other')]
+        [InlineKeyboardButton("Other", callback_data='dapps_other')],
+        [InlineKeyboardButton("Statistics", callback_data='dapps_stat')]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -238,7 +239,7 @@ def _statistics_view():
     return text
 
 
-def _generate_address_view():
+def _create_account_view():
     """Template for creating a new address"""
 
     result = tron.create_account
@@ -391,6 +392,33 @@ def callback_data(bot, update):
             parse_mode=telegram.ParseMode.MARKDOWN
         )
 
+    if query.data in ['dapps_stat']:
+        total = requests.get(constants.DAPPS_API + '/statistic/total').json()['data']
+        info = requests.get(constants.DAPPS_API + '/statistic/cate/info').json()
+
+        text = views.DAPP_STAT.format(
+            total=helpers.format_price(total['dappCount']),
+            dau=helpers.format_price(total['dau']),
+            transactions=helpers.format_price(total['transactionCount']),
+            volume=helpers.format_price(total['amount']),
+            smart_contract=helpers.format_price(total['contractCount']),
+        )
+
+        for item in info['data']:
+            text += views.DAPP_STAT_CAT.format(
+                category=helpers.get_dapp_categories(item['category']),
+                dapp_count=helpers.format_price(item['dappCount']),
+                mau=helpers.format_price(item['mau']),
+                transactions=helpers.format_price(item['transactionCount']),
+                smart_contract=helpers.format_price(item['contractCount']),
+            )
+
+        bot.send_message(
+            text=text,
+            chat_id=query.message.chat_id,
+            parse_mode=telegram.ParseMode.MARKDOWN
+        )
+
     if len(query.data) == 64:
         bot.edit_message_text(
             text=_tx_view(query.data),
@@ -411,12 +439,6 @@ def filter_text_input(bot, update):
             parse_mode=telegram.ParseMode.MARKDOWN,
             text=_tx_view(usr_msg_text)
         )
-    # Get last transactions
-    elif dict_to_request == 'lasttransactions':
-        update.message.reply_text(
-            parse_mode=telegram.ParseMode.MARKDOWN,
-            text=_generate_address_view()
-        )
     # Get top 10 accounts
     elif dict_to_request == 'topaccounts':
         update.message.reply_text(
@@ -430,16 +452,10 @@ def filter_text_input(bot, update):
             text=_price_view()
         )
     # Create new account
-    elif dict_to_request == 'generateaddress':
+    elif dict_to_request == 'createaccount':
         update.message.reply_text(
             parse_mode=telegram.ParseMode.MARKDOWN,
-            text=_generate_address_view()
-        )
-    # Create transaction
-    elif dict_to_request == 'createtransaction':
-        update.message.reply_text(
-            "To send a transaction, call the command /send",
-            parse_mode=telegram.ParseMode.MARKDOWN,
+            text=_create_account_view()
         )
     # Get stats
     elif dict_to_request == 'stats':
@@ -479,7 +495,7 @@ def main():
         states={
             CHOOSING: [
                 RegexHandler(
-                    '^(Generate Address|Price|Stats|Top Accounts)$',
+                    '^(Create Account|Price|Stats|Top Accounts)$',
                     filter_text_input
                 ),
 
@@ -510,8 +526,8 @@ def main():
     dp.add_handler(CommandHandler("balance", balance, pass_args=True))
     dp.add_handler(CommandHandler("accounts", accounts))
     dp.add_handler(CommandHandler("lasttransactions", last_transactions))
-    dp.add_handler(CommandHandler("generateaddress", generate_address))
-    dp.add_handler(CommandHandler("statistics", statistics))
+    dp.add_handler(CommandHandler("createaccount", createaccount))
+    dp.add_handler(CommandHandler("stats", stats))
     dp.add_handler(CommandHandler('dapps', dapps))
 
     # messages

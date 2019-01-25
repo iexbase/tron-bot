@@ -14,6 +14,17 @@ from tronapi_bot.constants import DAPPS_API
 locale.setlocale(locale.LC_ALL, '')
 
 
+def format_price(num):
+    if num >= 1000000000:
+        return '{:.5f}'.format(num / 1000000000) + 'k'
+    elif num >= 1000000:
+        return '{:.3f}'.format(num / 1000000) + 'k'
+    elif num >= 1000:
+        return '{:.2f}'.format(num / 1000) + 'k'
+
+    return num
+
+
 def currency(amount):
     return str(locale.currency(amount, grouping=True))
 
@@ -73,3 +84,16 @@ def get_contract_type(t: int):
         return 'Trigger Smart Contract'
     else:
         return 'Unregistred Name'
+
+
+def get_dapp_categories(i: int):
+    if i == 0:
+        return 'Other'
+    elif i == 1:
+        return 'Games'
+    elif i == 2:
+        return 'Exchanges'
+    elif i == 3:
+        return 'Collectibles'
+    elif i == 5:
+        return 'Gambling'

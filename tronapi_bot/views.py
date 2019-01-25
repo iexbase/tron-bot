@@ -106,3 +106,24 @@ DAPP_PREVIEW = ("""
 *Total transaction* {total}
 -------------------------
 """)
+
+
+DAPP_STAT = ("""
+*Total DApps:* {total}
+*Daily active users:*: {dau}
+*24 hr transactions:* {transactions}
+*24 hr volume (TRX):* {volume}
+*Smart contracts:* {smart_contract}
+
+*Categories:*
+""")
+
+
+DAPP_STAT_CAT = ("""
+*Category:* {category}
+*Total DApps:* {dapp_count}
+*Daily active users:* {mau}
+*24 hr transactions:* {transactions}
+*Smart contract:* {smart_contract}
+---------------------------------
+""")

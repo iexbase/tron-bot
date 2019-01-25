@@ -12,7 +12,6 @@ keyboard_p1 = [
         KeyboardButton("Price"),
         KeyboardButton("Stats")
     ],
-    [KeyboardButton("Last Transactions")],
-    [KeyboardButton("Generate Address")]
+    [KeyboardButton("Create Account")]
 ]
 reply_markup_p1 = ReplyKeyboardMarkup(keyboard_p1, True, False)
