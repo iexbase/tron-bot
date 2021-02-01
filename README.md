@@ -1,6 +1,5 @@
 <h1 align="center">
   Tron Bot
-  <br>
 </h1>
 
 ## Requirements
