@@ -18,7 +18,7 @@
 ## How to use
 
 ### Settings
-Bot Settings are in the file tronapi_bot/config.py:
+Bot Settings are in the file tronapi_bot/constants.py:
 
 ```python
 BOT_NAME = ""
